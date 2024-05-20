@@ -447,3 +447,479 @@ class Verticales(Scene):
             )
             self.wait()
             
+
+
+# Droites horizontales
+class Horizontales(Scene):
+    def construct(self):
+        msg1 = "Droites horizontales"
+        title1 = Title(f"{msg1}")
+        self.add(title1.scale(1))
+        self.wait(2)
+
+        ax = Axes().add_coordinates().scale(0.85).next_to(title1, 2 * DOWN)
+        ax_labels = ax.get_axis_labels(
+            Tex(r"abscisses \(x\)"),
+            Tex(r"ordonnées \(y\)")
+        ).scale(0.85)
+        self.play(
+            Create(ax),
+            Create(ax_labels)
+        )
+        self.wait()
+        
+        # dots with respect to the axes
+        A = Dot(ax.coords_to_point(-2, -2), color=BLUE)
+        B = Dot(ax.coords_to_point(2, -2), color=BLUE)
+        C = Dot(ax.coords_to_point(0, -2), color=RED)
+        self.play(
+            Write(A),
+            Write(B)
+        )
+        self.wait()
+
+        A_label = Tex("A", color=BLUE).next_to(A, UL).scale(0.85)
+        B_label = Tex("B", color=BLUE).next_to(B, UR).scale(0.85)
+        C_label = Tex("C", color=RED).next_to(C, UL).scale(0.85)
+        self.play(
+            Write(A_label),
+            Write(B_label)
+        )
+        self.wait()
+        
+        A_lines = ax.get_lines_to_point(ax.c2p(-2, -2))
+        B_lines = ax.get_lines_to_point(ax.c2p(2, -2))
+
+        q1 = Title("Quelle pourrait être l'équation de la droite (AB) ?")
+        self.play(
+            ReplacementTransform(title1, q1),
+            Write(A_lines),
+            Write(B_lines)
+        )
+        self.wait(2)
+
+        q2 = Title("Le point C appartient-il à la droite (AB) ?")
+        self.play(
+            ReplacementTransform(q1, q2),
+            *[Write(o) for o in [C, C_label]]
+        )
+        self.wait(2)
+
+        
+        q3 = Title("Quel est le point commun entre A, B et C ?")
+        self.play(ReplacementTransform(q2, q3))
+        self.wait(2)
+
+        rep = [
+            r"\(   y_A = y_B = y_C = -2\)",
+            r"\((AB) : \, y = -2\)"
+        ]
+
+        rep_tex = [Tex(r) for r in rep]
+        disp_tex_list(self, 
+            previous_mobj=None,
+            tex_list=rep_tex,
+            next2obj=ax_labels[1],
+            direction=DOWN
+        )
+
+        box = SurroundingRectangle(rep_tex[-1], color=RED)
+        self.play(
+            Indicate(rep_tex[-1], color=RED),
+        )
+        self.wait()
+
+        self.play(
+            Circumscribe(rep_tex[-1], color=RED),
+        )
+        self.wait()
+
+        ab_eq = VGroup(rep_tex[-1], box)
+        self.play(
+            FadeOut(rep_tex[0])
+        )
+        self.wait()
+
+        ab_curve = ax.plot(
+            lambda x: -2, color=RED
+        )
+        self.play(
+            Write(ab_curve)
+        )
+        self.wait()
+
+        
+        M = Dot(ax.coords_to_point(-5, -2), color=ORANGE)
+        x = ValueTracker(-5)
+        pointer = Vector(UP).next_to(M, DOWN)
+
+        M.add_updater(lambda z: z.set_x(x.get_value()))
+        pointer.add_updater(lambda z: z.set_x(x.get_value()))
+        ab_eq.add_updater(lambda z: z.set_x(x.get_value()))
+        
+        self.play(
+            Write(M),
+            Write(pointer.next_to(M, DOWN)),
+            ab_eq.animate.next_to(pointer, 0.5 * DOWN)
+        )
+        self.wait()
+        self.play(
+            x.animate.set_value(5),
+            run_time=2
+        )
+        self.wait()
+
+        t4 = Title(r"Si \(M(x;y)\in(AB)\) alors \(y = -2\)")
+        self.play(
+            ReplacementTransform(q3, t4),
+            x.animate.set_value(-5),
+            run_time=2
+        )
+        self.wait()
+
+        y_vals = list(range(-1, 4))
+        ab_tex = [Tex(r"(AB)\,:\,y = " + f"{y}") for y in y_vals]
+        boxes = [SurroundingRectangle(e, color=RED) for e in ab_tex]
+        ab_eqs = VGroup(*[
+            VGroup(ab_tex[i], boxes[i]) for i in range(len(boxes))
+        ])
+        A_dots = [Dot(ax.coords_to_point(-2, y), color=BLUE) for y in y_vals]
+        B_dots = [Dot(ax.coords_to_point(2, y), color=BLUE) for y in y_vals]
+        A_lin_updates = [ax.get_lines_to_point(ax.c2p(-2, y)) for y in y_vals]
+        B_lin_updates = [ax.get_lines_to_point(ax.c2p(2, y)) for y in y_vals]
+
+        C_dots = [Dot(ax.coords_to_point(0, y), color=RED) for y in y_vals]
+        M_dots = [Dot(ax.coords_to_point(-5, y), color=ORANGE) for y in y_vals]
+        ab_curves = [ax.plot(
+            lambda x: yv, color=RED
+        ) for yv in y_vals]
+
+        titles = [
+            Title(
+                r"Si \(M(x;y)\in(AB)\) alors \(y = " + f"{y}\)"
+            ) for y in y_vals
+        ]
+        
+        for i in range(len(y_vals)):
+            if i == 0:
+                self.play(
+                    ReplacementTransform(t4, titles[0]),
+                    A.animate.move_to(A_dots[i]),
+                    A_label.animate.next_to(A, UL),
+                    ReplacementTransform(A_lines, A_lin_updates[i]),
+                    B.animate.move_to(B_dots[i]),
+                    B_label.animate.next_to(B, UR),
+                    ReplacementTransform(B_lines, B_lin_updates[i]),
+                    C.animate.move_to(C_dots[i]),
+                    C_label.animate.next_to(C, LEFT),
+                    M.animate.move_to(M_dots[i]),
+                    pointer.animate.next_to(M, DOWN),
+                    ab_curve.animate.move_to(ab_curves[i]),
+                    ReplacementTransform(
+                        ab_eq,
+                        ab_eqs[i].next_to(pointer, 0.5 * DOWN)
+                    ),
+                )
+                ab_eqs[i].add_updater(lambda z: z.set_x(x.get_value()))
+                self.wait()
+            else:
+                self.play(
+                    ReplacementTransform(titles[i-1], titles[i]),
+                    A.animate.move_to(A_dots[i]),
+                    A_label.animate.next_to(A, 0.5 * UL),
+                    ReplacementTransform(A_lin_updates[i-1], A_lin_updates[i]),
+                    B.animate.move_to(B_dots[i]),
+                    B_label.animate.next_to(B, 0.5 * UR),
+                    ReplacementTransform(B_lin_updates[i-1], B_lin_updates[i]),
+                    C.animate.move_to(C_dots[i]),
+                    C_label.animate.next_to(C, 0.5 * LEFT),
+                    ab_curve.animate.move_to(ab_curves[i]),
+                    M.animate.move_to(M_dots[i]),
+                    pointer.animate.next_to(M, DOWN),
+                    ReplacementTransform(
+                        ab_eqs[i-1],
+                        ab_eqs[i].next_to(pointer, 0.5 * DOWN)
+                    ),
+                )
+                ab_eqs[i].add_updater(lambda z: z.set_x(x.get_value()))
+                self.wait()
+                
+            self.play(
+                x.animate.set_value(5),
+                run_time=2
+            )
+            self.wait()
+            
+            self.play(
+                x.animate.set_value(-5),
+                run_time=2
+            )
+            self.wait()
+            
+            
+
+# Droites obliques
+class Obliques(Scene):
+    def construct(self):
+        msg1 = "Droites obliques"
+        title1 = Title(f"{msg1}")
+        self.add(title1.scale(1))
+        self.wait(2)
+
+        ax = Axes().add_coordinates().scale(0.85).next_to(title1, 2 * DOWN)
+        ax_labels = ax.get_axis_labels(
+            Tex(r"abscisses \(x\)"),
+            Tex(r"ordonnées \(y\)")
+        ).scale(0.85)
+        self.play(
+            Create(ax),
+            Create(ax_labels)
+        )
+        self.wait()
+        
+        # dots with respect to the axes
+        A = Dot(ax.coords_to_point(-2, -2), color=BLUE)
+        B = Dot(ax.coords_to_point(2, 3), color=BLUE)
+        C = Dot(ax.coords_to_point(2, -2), color=RED)
+
+        self.play(
+            Write(A),
+            Write(B)
+        )
+        self.wait()
+
+        A_label = Tex("A", color=BLUE).next_to(A, LEFT).scale(0.85)
+        B_label = Tex("B", color=BLUE).next_to(B, RIGHT).scale(0.85)
+        C_label = Tex("C", color=RED).next_to(C, RIGHT).scale(0.85)
+
+        self.play(
+            Write(A_label),
+            Write(B_label)
+        )
+        self.wait()
+        
+        A_lines = ax.get_lines_to_point(ax.c2p(-2, -2))
+        B_lines = ax.get_lines_to_point(ax.c2p(2, 3))
+        C_lines = ax.get_lines_to_point(ax.c2p(2, -2))
+        vector_AC = Arrow(A, C, color=RED)
+        AC_line = Line(A, C, color=RED)
+        CB_line = Line(C, B, color=RED)
+        vector_CB = Arrow(C, B, color=RED)
+        AB_lines = [A_lines, B_lines]
+        ABC_lines = [AC_line, CB_line]
+        ABC_vects = [vector_AC, vector_CB]
+        
+        q1 = Title("Quelle pourrait être l'équation de la droite (AB) ?")
+        self.play(
+            ReplacementTransform(title1, q1),
+            *[Write(l) for l in AB_lines]
+        )
+        self.wait(2)
+
+        q2 = Title("Le point C appartient-il à la droite (AB) ?")
+        self.play(
+            ReplacementTransform(q1, q2),
+            *[Write(o) for o in [C, C_label]]
+        )
+        self.wait(2)
+
+        self.play(
+            *[Write(l) for l in ABC_vects]
+        )
+        self.wait(2)
+        
+        q3 = Title("Quelle est la relation entre A, B et C ?")
+        self.play(ReplacementTransform(q2, q3))
+        self.wait(2)
+
+        rep = [
+            r"\(x_B = x_C = 3\)",
+            r"\(y_A = y_C = -2\)",
+            r"\((AB) : y = mx + p\)",
+            r"\(y_B = mx_B + p\)",
+            r"\(y_A = mx_A + p\)",
+            r"\(\dfrac{y_B - y_A}{x_B - x_A} = \dfrac{5}{4} = 1,25\)",
+            r"\(p = y_B - mx_B\)",
+            r"\(p = 3 - 1,25\times 2\)",
+            r"\(p = 0,5\)",
+            r"\((AB) : y = \dfrac{5}{4}x + \dfrac{1}{2}\)"
+        ]
+
+        rep_tex = [Tex(r) for r in rep]
+        disp_calculations(
+            self,
+            previous_mobj=None,
+            calcs=rep_tex,
+            next2obj=C_label,
+            direction=RIGHT
+        )
+
+        box = SurroundingRectangle(rep_tex[-1], color=GREEN)
+        self.play(
+            Indicate(rep_tex[-1], color=GREEN),
+        )
+        self.wait()
+
+        self.play(
+            Circumscribe(rep_tex[-1], color=GREEN),
+        )
+        self.wait()
+
+        ab_eq = VGroup(rep_tex[-1], box)
+
+        def affine(x): return 1.25 * x + 0.5
+        
+        ab_curve = ax.plot(affine, color=GREEN)
+        
+        self.play(
+            Write(ab_curve),
+            ab_eq.animate.next_to(A, DL)
+        )
+        self.wait()
+
+        t = ValueTracker(-7)
+        initial_point = [
+            ax.coords_to_point(
+                t.get_value(),
+                affine(t.get_value())
+            )
+        ]
+        M = Dot(point=initial_point, color=ORANGE)
+        M.add_updater(
+            lambda x: x.move_to(
+                ax.c2p(
+                    t.get_value(),
+                    affine(t.get_value())
+                )
+            )
+        )
+        
+        pointer = Vector(RIGHT).next_to(M, LEFT)
+        
+        
+        self.play(
+            Write(M),
+            Write(pointer.next_to(M, LEFT)),
+            ab_eq.animate.next_to(pointer, 1.5 * RIGHT),
+        )
+        self.wait()
+
+        pointer.add_updater(
+            lambda x: x.move_to(
+                ax.c2p(
+                    t.get_value() - 1,
+                    affine(t.get_value())
+                )
+            )
+        )
+        
+        ab_eq.add_updater(
+            lambda x: x.move_to(
+                ax.c2p(
+                    t.get_value() + 4,
+                    affine(t.get_value())
+                )
+            )
+        )
+
+        t4 = Title(r"Si \(M(x;y)\in(AB)\) alors \(y = 1,25x + 0,5\)")
+        self.play(
+            ReplacementTransform(q3, t4),
+            t.animate.set_value(6),
+            pointer.animate.next_to(M, LEFT),
+            ab_eq.animate.next_to(M, 2 * RIGHT),
+            run_time = 10
+        )
+        self.wait(2)
+
+        self.play(
+            t.animate.set_value(-7),
+            pointer.animate.next_to(M, LEFT),
+            ab_eq.animate.next_to(M, 2 * RIGHT),
+            run_time = 10
+        )
+        self.wait(2)
+        
+
+
+        # y_vals = list(range(-2, 3))
+        # ab_tex = [Tex(r"(AB)\,:\,y = " + f"{y}") for y in y_vals]
+        # boxes = [SurroundingRectangle(e, color=RED) for e in ab_tex]
+        # ab_eqs = VGroup(*[
+        #     VGroup(ab_tex[i], boxes[i]) for i in range(len(boxes))
+        # ])
+        # A_dots = [Dot(ax.coords_to_point(-2, y), color=BLUE) for y in y_vals]
+        # B_dots = [Dot(ax.coords_to_point(2, y), color=BLUE) for y in y_vals]
+        # A_lin_updates = [ax.get_lines_to_point(ax.c2p(-2, y)) for y in y_vals]
+        # B_lin_updates = [ax.get_lines_to_point(ax.c2p(2, y)) for y in y_vals]
+
+        # C_dots = [Dot(ax.coords_to_point(0, y), color=RED) for y in y_vals]
+        # M_dots = [Dot(ax.coords_to_point(-5, y), color=ORANGE) for y in y_vals]
+        # ab_curves = [ax.plot(
+        #     lambda x: yv, color=RED
+        # ) for yv in y_vals]
+
+        # titles = [
+        #     Title(
+        #         r"Si \(M(x;y)\in(AB)\) alors \(y = " + f"{y}\)"
+        #     ) for y in y_vals
+        # ]
+        
+        # for i in range(len(y_vals)):
+        #     if i == 0:
+        #         self.play(
+        #             ReplacementTransform(t4, titles[0]),
+        #             A.animate.move_to(A_dots[i]),
+        #             A_label.animate.next_to(A, UL),
+        #             ReplacementTransform(A_lines, A_lin_updates[i]),
+        #             B.animate.move_to(B_dots[i]),
+        #             B_label.animate.next_to(B, UR),
+        #             ReplacementTransform(B_lines, B_lin_updates[i]),
+        #             C.animate.move_to(C_dots[i]),
+        #             C_label.animate.next_to(C, LEFT),
+        #             M.animate.move_to(M_dots[i]),
+        #             pointer.animate.next_to(M, DOWN),
+        #             ab_curve.animate.move_to(ab_curves[i]),
+        #             ReplacementTransform(
+        #                 ab_eq,
+        #                 ab_eqs[i].next_to(pointer, 0.5 * DOWN)
+        #             ),
+        #         )
+        #         ab_eqs[i].add_updater(lambda z: z.set_x(x.get_value()))
+        #         self.wait()
+        #     else:
+        #         self.play(
+        #             ReplacementTransform(titles[i-1], titles[i]),
+        #             A.animate.move_to(A_dots[i]),
+        #             A_label.animate.next_to(A, 0.5 * UL),
+        #             ReplacementTransform(A_lin_updates[i-1], A_lin_updates[i]),
+        #             B.animate.move_to(B_dots[i]),
+        #             B_label.animate.next_to(B, 0.5 * UR),
+        #             ReplacementTransform(B_lin_updates[i-1], B_lin_updates[i]),
+        #             C.animate.move_to(C_dots[i]),
+        #             C_label.animate.next_to(C, 0.5 * LEFT),
+        #             ab_curve.animate.move_to(ab_curves[i]),
+        #             M.animate.move_to(M_dots[i]),
+        #             pointer.animate.next_to(M, DOWN),
+        #             ReplacementTransform(
+        #                 ab_eqs[i-1],
+        #                 ab_eqs[i].next_to(pointer, 0.5 * DOWN)
+        #             ),
+        #         )
+        #         ab_eqs[i].add_updater(lambda z: z.set_x(x.get_value()))
+        #         self.wait()
+                
+        #     self.play(
+        #         x.animate.set_value(5),
+        #         run_time=2
+        #     )
+        #     self.wait()
+            
+        #     self.play(
+        #         x.animate.set_value(-5),
+        #         run_time=2
+        #     )
+        #     self.wait()
+            
+            
+            
