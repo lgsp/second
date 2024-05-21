@@ -7,11 +7,11 @@ from PIL import Image
 def disp_sub(self, lang):
     if lang.lower() == "en":
         written, phon = "Subscribe", "/səbˈskraɪb/"
-        sub_pic = SVGMobject("/Users/dn/Documents/pics/svg/subscribe.svg")
+        sub_pic = SVGMobject("/Users/digitalnomad/Documents/pics/svg/subscribe.svg")
         sub_scale = 0.8 
     elif lang.lower() == "fr":
         written, phon = "Abonnez-vous", "/abɔne vu/"
-        sub_pic = ImageMobject("/Users/dn/Documents/pics/png/sabonner.png")
+        sub_pic = ImageMobject("/Users/digitalnomad/Documents/pics/png/sabonner.png")
         sub_scale = 0.45
     elif lang.lower() == "ru":
         written, phon = "Подпишитесь", "/pɐd'piʂitʲɪsʲ/"
@@ -842,84 +842,305 @@ class Obliques(Scene):
         
 
 
-        # y_vals = list(range(-2, 3))
-        # ab_tex = [Tex(r"(AB)\,:\,y = " + f"{y}") for y in y_vals]
-        # boxes = [SurroundingRectangle(e, color=RED) for e in ab_tex]
-        # ab_eqs = VGroup(*[
-        #     VGroup(ab_tex[i], boxes[i]) for i in range(len(boxes))
-        # ])
-        # A_dots = [Dot(ax.coords_to_point(-2, y), color=BLUE) for y in y_vals]
-        # B_dots = [Dot(ax.coords_to_point(2, y), color=BLUE) for y in y_vals]
-        # A_lin_updates = [ax.get_lines_to_point(ax.c2p(-2, y)) for y in y_vals]
-        # B_lin_updates = [ax.get_lines_to_point(ax.c2p(2, y)) for y in y_vals]
 
-        # C_dots = [Dot(ax.coords_to_point(0, y), color=RED) for y in y_vals]
-        # M_dots = [Dot(ax.coords_to_point(-5, y), color=ORANGE) for y in y_vals]
-        # ab_curves = [ax.plot(
-        #     lambda x: yv, color=RED
-        # ) for yv in y_vals]
+class Cartesian(Scene):
+    def construct(self):
+        msg1 = "Équations cartésiennes de droites"
+        title1 = Title(f"{msg1}")
+        self.add(title1.scale(1))
+        self.wait(2)
 
-        # titles = [
-        #     Title(
-        #         r"Si \(M(x;y)\in(AB)\) alors \(y = " + f"{y}\)"
-        #     ) for y in y_vals
-        # ]
+        ax = Axes().add_coordinates().scale(0.85).next_to(title1, 2 * DOWN)
+        ax_labels = ax.get_axis_labels(
+            Tex(r"abscisses \(x\)"),
+            Tex(r"ordonnées \(y\)")
+        ).scale(0.85)
+        self.play(
+            Create(ax),
+            Create(ax_labels)
+        )
+        self.wait()
         
-        # for i in range(len(y_vals)):
-        #     if i == 0:
-        #         self.play(
-        #             ReplacementTransform(t4, titles[0]),
-        #             A.animate.move_to(A_dots[i]),
-        #             A_label.animate.next_to(A, UL),
-        #             ReplacementTransform(A_lines, A_lin_updates[i]),
-        #             B.animate.move_to(B_dots[i]),
-        #             B_label.animate.next_to(B, UR),
-        #             ReplacementTransform(B_lines, B_lin_updates[i]),
-        #             C.animate.move_to(C_dots[i]),
-        #             C_label.animate.next_to(C, LEFT),
-        #             M.animate.move_to(M_dots[i]),
-        #             pointer.animate.next_to(M, DOWN),
-        #             ab_curve.animate.move_to(ab_curves[i]),
-        #             ReplacementTransform(
-        #                 ab_eq,
-        #                 ab_eqs[i].next_to(pointer, 0.5 * DOWN)
-        #             ),
-        #         )
-        #         ab_eqs[i].add_updater(lambda z: z.set_x(x.get_value()))
-        #         self.wait()
-        #     else:
-        #         self.play(
-        #             ReplacementTransform(titles[i-1], titles[i]),
-        #             A.animate.move_to(A_dots[i]),
-        #             A_label.animate.next_to(A, 0.5 * UL),
-        #             ReplacementTransform(A_lin_updates[i-1], A_lin_updates[i]),
-        #             B.animate.move_to(B_dots[i]),
-        #             B_label.animate.next_to(B, 0.5 * UR),
-        #             ReplacementTransform(B_lin_updates[i-1], B_lin_updates[i]),
-        #             C.animate.move_to(C_dots[i]),
-        #             C_label.animate.next_to(C, 0.5 * LEFT),
-        #             ab_curve.animate.move_to(ab_curves[i]),
-        #             M.animate.move_to(M_dots[i]),
-        #             pointer.animate.next_to(M, DOWN),
-        #             ReplacementTransform(
-        #                 ab_eqs[i-1],
-        #                 ab_eqs[i].next_to(pointer, 0.5 * DOWN)
-        #             ),
-        #         )
-        #         ab_eqs[i].add_updater(lambda z: z.set_x(x.get_value()))
-        #         self.wait()
-                
-        #     self.play(
-        #         x.animate.set_value(5),
-        #         run_time=2
-        #     )
-        #     self.wait()
-            
-        #     self.play(
-        #         x.animate.set_value(-5),
-        #         run_time=2
-        #     )
-        #     self.wait()
-            
-            
-            
+        # dots with respect to the axes
+        A = Dot(ax.coords_to_point(-5, -2), color=BLUE)
+        B = Dot(ax.coords_to_point(1, 2), color=BLUE)
+        C = Dot(ax.coords_to_point(-5, 2), color=RED)
+        
+        self.play(
+            *[Write(d) for d in [A, B, C]]
+        )
+        self.wait()
+
+        A_label = Tex("A", color=BLUE).next_to(A, LEFT).scale(0.85)
+        B_label = Tex("B", color=BLUE).next_to(B, RIGHT).scale(0.85)
+        C_label = Tex("C", color=RED).next_to(C, LEFT).scale(0.85)
+
+        self.play(
+            Write(A_label),
+            Write(B_label),
+            Write(C_label),
+        )
+        self.wait()
+        
+        A_lines = ax.get_lines_to_point(ax.c2p(-5, -2))
+        B_lines = ax.get_lines_to_point(ax.c2p(1, 2))
+        C_lines = ax.get_lines_to_point(ax.c2p(-5, 2))
+        
+        q1 = Title("Quelle pourrait être l'équation de la droite (AB) ?")
+        self.play(
+            ReplacementTransform(title1, q1),
+            *[Write(l) for l in [A_lines, B_lines, C_lines]]
+        )
+        self.wait(2)
+
+        vector_AC = Arrow(A, C, color=RED)
+        vector_CB = Arrow(C, B, color=RED)
+        vects = [vector_AC, vector_CB]
+        q2 = Title(
+            r"Quelles sont les coordonnées du vecteur \(\overrightarrow{AB}\) ?"
+        )
+        self.play(
+            ReplacementTransform(q1, q2),
+            *[Write(v) for v in vects]
+        )
+        self.wait(2)
+        
+        
+        def affine(x): return (2/3) * x + (4/3)
+        
+        ab_curve = ax.plot(affine, color=GREEN)
+
+        q3 = Title("Comment exprimer la droite (AB) vectoriellement ?")
+        self.play(
+            ReplacementTransform(q2, q3),
+            Write(ab_curve),
+        )
+        self.wait()
+
+        t = ValueTracker(-7)
+        initial_point = [
+            ax.coords_to_point(
+                t.get_value(),
+                affine(t.get_value())
+            )
+        ]
+        M = Dot(point=initial_point, color=ORANGE)
+        M.add_updater(
+            lambda x: x.move_to(
+                ax.c2p(
+                    t.get_value(),
+                    affine(t.get_value())
+                )
+            )
+        )
+        
+        q4 = Title("La droite (AB) est l'ensemble des points \(M(x ; y)\) vérifiant :")
+        rep = [
+            r"\(\overrightarrow{AM} = k\overrightarrow{AB}\)",
+            r"\(\det(\overrightarrow{AM} = \overrightarrow{AB}) = 0\)",
+            r"\(x_{\overrightarrow{AM}}y_{\overrightarrow{AB}} - x_{\overrightarrow{AB}}y_{\overrightarrow{AM}} = 0\)",
+            r"\(4x - 6y + 8 = 0\)",
+            r"\((AB) : 2x - 3y + 4 = 0\)"
+        ]
+
+        rep_tex = [Tex(r).scale(0.75) for r in rep]
+        disp_calculations(
+            self,
+            previous_mobj=None,
+            calcs=rep_tex,
+            next2obj=C_label,
+            direction=UP
+        )
+
+        box = SurroundingRectangle(rep_tex[-1], color=GREEN)
+        self.play(
+            ReplacementTransform(q3, q4),
+            Indicate(rep_tex[-1], color=GREEN),
+        )
+        self.wait()
+
+        self.play(
+            Circumscribe(rep_tex[-1], color=GREEN),
+        )
+        self.wait()
+
+        ab_eq = VGroup(rep_tex[-1], box)
+        
+        self.play(
+            Write(M),
+        )
+        self.wait()
+
+        
+        ab_eq.add_updater(
+            lambda x: x.move_to(
+                ax.c2p(
+                    t.get_value() + 4,
+                    affine(t.get_value())
+                )
+            )
+        )
+
+        t4 = Title(r"Si \(M(x;y)\in(AB)\) alors \(2x - 3y + 4 = 0\)")
+        self.play(
+            ReplacementTransform(q4, t4),
+            t.animate.set_value(6),
+            ab_eq.animate.next_to(M, 2 * RIGHT),
+            run_time = 10
+        )
+        self.wait(2)
+
+        self.play(
+            t.animate.set_value(-7),
+            ab_eq.animate.next_to(M, 2 * RIGHT),
+            run_time = 10
+        )
+        self.wait(2)
+        
+
+
+        
+class Determinant(Scene):
+    def construct(self):
+        msg1 = "Déterminant et équations de droites"
+        title1 = Title(f"{msg1}")
+        self.add(title1.scale(1))
+        self.wait(2)
+
+        
+        rep = [
+            r"On considère une droite une droite \(\mathcal{D}\) "
+            r"passant par un point A ",
+            r"et dirigée par un vecteur \(\vec{u}\).",
+            r"Cette droite est donc l'ensemble des points M tels que ",
+            r"les vecteurs \(\overrightarrow{AM}\) et \(\vec{u}\) "
+            r"sont colinéaires.",
+            r"Formellement on écrit \(\overrightarrow{AM} = k\vec{u}\) "
+            r"où \(k\in\mathbb{R}\).",
+        ]
+
+        rep_tex = [Tex(r) for r in rep]
+        repVGroup = VGroup(*rep_tex)
+        
+        disp_tex_list(self, 
+            previous_mobj=None,
+            tex_list=rep_tex,
+            next2obj=title1,
+            direction=DOWN
+        )
+        
+        rep1 = [
+            r"D'où le système d'équations : ",
+            r"\((E_1) : x_{\overrightarrow{AM}} = kx_{\vec{u}}\)",
+            r"\((E_2) : y_{\overrightarrow{AM}} = ky_{\vec{u}}\)",
+            r"On obtient ainsi deux expressions du rapport ",
+            r"de proportionnalité \(k\in\mathbb{R}\)",
+            r"\((E_1) : k = \dfrac{x_{\overrightarrow{AM}}}{x_{\vec{u}}}\)",
+            r"\((E_2) : k = \dfrac{y_{\overrightarrow{AM}}}{y_{\vec{u}}}\)"
+        ]
+        
+        rep1_tex = [Tex(r) for r in rep1]
+        rep1VGroup = VGroup(*rep1_tex)
+        
+        disp_tex_list(self, 
+            previous_mobj=repVGroup,
+            tex_list=rep1_tex,
+            next2obj=title1,
+            direction=DOWN
+        )
+
+        rep2 = [
+            r"Normalement ça devrait vous rappeler le théorème de Thalès",
+            r"En faisant un produit en croix on obtient : ",
+            r"\(x_{\overrightarrow{AM}}y_{\vec{u}} - x_{\vec{u}}y_{\overrightarrow{AM}} = 0\)",
+            r"C'est ce produit en croix qu'on nomme déterminant.",
+            r"\(\det(\overrightarrow{AM}, \vec{u}) = \begin{vmatrix}"
+            r"x_{\overrightarrow{AM}}&x_{\vec{u}}\\"
+            r"y_{\overrightarrow{AM}}&y_{\vec{u}}\end{vmatrix}\)",
+            r"D'où les équivalences :",
+            r"\(\vec{u}\) et \(\vec{v}\) sont colinéaires ",
+            r"équivalent à \(\det(\vec{u}, \vec{v}) = 0\)"
+        ]
+
+        rep2_tex = [Tex(r) for r in rep2]
+        rep2VGroup = VGroup(*rep2_tex)
+        
+        disp_tex_list(self, 
+            previous_mobj=rep1VGroup,
+            tex_list=rep2_tex,
+            next2obj=title1,
+            direction=DOWN
+        )
+
+        
+        
+        rep3 = [
+            r"Prenons un exemple concret avec \(A(-5 ; -2)\) ",
+            r"et \(\vec{u}\begin{pmatrix}6\\4\end{pmatrix}\).",
+            r"Calculons le déterminant : ",
+            r"\(\det(\overrightarrow{AM}, \vec{u}) = \begin{vmatrix}"
+            r"x - (-5)&6\\ y - (-2)&4\end{vmatrix}\)",
+            r"\(\det(\overrightarrow{AM}, \vec{u}) = 0\iff "
+            r"4(x + 5) - 6(y + 2) = 0\)",
+            r"D'où une équation cartésienne de la droite "
+            r"\(4x + 20 - 6y - 12 = 0\)",
+        ]
+
+        rep3_tex = [Tex(r) for r in rep3]
+        rep3VGroup = VGroup(*rep3_tex)
+        
+        disp_tex_list(self, 
+            previous_mobj=rep2VGroup,
+            tex_list=rep3_tex,
+            next2obj=title1,
+            direction=DOWN
+        )
+
+        rep4 = [
+            r"Ainsi la droite passant par \(A(-5 ; -2)\) ",
+            r"et dirigée par \(\vec{u}\begin{pmatrix}6\\4\end{pmatrix}\)",
+            r"admet pour équations cartésiennes :",
+            r"\(4x - 6y + 8 = 0\iff 2x - 3y + 4 = 0\)",
+        ]
+
+        rep4_tex = [Tex(r) for r in rep4]
+        rep4VGroup = VGroup(*rep4_tex)
+        
+        disp_tex_list(self, 
+            previous_mobj=rep3VGroup,
+            tex_list=rep4_tex,
+            next2obj=title1,
+            direction=DOWN
+        )
+
+        
+        
+        
+class Subscribe(Scene):
+    def construct(self):
+        msg1 = "Abonnez-vous"
+        title1 = Title(f"{msg1}")
+        self.add(title1.scale(1))
+        self.wait(2)
+
+        credits_txt = [
+            r"Animations réalisées par Laurent Garnier",
+            r"Vous pouvez me contactez par mail "
+            r"prenom.nom.superprofATgmail.com",
+            r"si vous souhaitez travailler avec moi.",
+            r"Merci pour votre attention."
+        ]
+        dCredits = [Tex(d).scale(0.75) for d in credits_txt]
+        dCVGroup = VGroup(*dCredits)
+        
+
+        disp_tex_list(self, 
+            previous_mobj=None,
+            tex_list=dCredits,
+            next2obj=title1,
+            direction=DOWN
+        )
+
+        self.wait(2)
+
+        disp_sub(self, lang="FR")
